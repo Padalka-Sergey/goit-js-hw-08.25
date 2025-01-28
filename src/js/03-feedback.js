@@ -5,35 +5,18 @@ const data = {};
 const KEYSTORAGE = 'feedback-form-state';
 const savedData = localStorage.getItem(KEYSTORAGE);
 
-if (savedData) {
-  const parsedData = JSON.parse(savedData);
-
-  formRef.elements.email.value = parsedData.email;
-  formRef.elements.message.value = parsedData.message;
-} else {
-  formRef.elements.email.value = '';
-  formRef.elements.message.value = '';
-}
+populateTextStart();
 
 formRef.addEventListener('input', throttle(inputSaveStorage, 500));
 formRef.addEventListener('submit', submitForm);
 
 function inputSaveStorage(evt) {
-  if ('email' === evt.target.name) {
-    data.email = evt.target.value;
-  }
-  if (!data.email) {
-    data.email = formRef.elements.email.value;
-  }
-  if ('message' === evt.target.name) {
-    data.message = evt.target.value;
-  }
-  if (!data.message) {
-    data.message = formRef.elements.message.value;
-  }
+  data[evt.target.name] = evt.target.value;
+
+  onInputEmptyData('email');
+  onInputEmptyData('message');
 
   const dataJson = JSON.stringify(data);
-
   localStorage.setItem(KEYSTORAGE, dataJson);
 }
 
@@ -44,7 +27,22 @@ function submitForm(evt) {
     const parsedData = JSON.parse(savedData);
     console.log(parsedData);
   }
-  formRef.elements.email.value = '';
-  formRef.elements.message.value = '';
+
+  evt.currentTarget.reset();
   localStorage.removeItem(KEYSTORAGE);
+}
+
+function onInputEmptyData(param) {
+  if (!data[param]) {
+    data[param] = formRef.elements[param].value;
+  }
+}
+
+function populateTextStart() {
+  if (savedData) {
+    const parsedData = JSON.parse(savedData);
+
+    formRef.elements.email.value = parsedData.email;
+    formRef.elements.message.value = parsedData.message;
+  }
 }
